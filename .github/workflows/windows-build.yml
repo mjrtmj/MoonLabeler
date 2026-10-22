@@ -106,5 +106,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
+          # The artifact keeps the upload paths (dist/*.zip, dist/*.sha256), so locate the files rather than assume a flat layout.
+          find portable -type f
+          files=$(find portable -type f \( -name '*.zip' -o -name '*.sha256' \))
+          test -n "$files"
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "$TAG" --generate-notes
-          gh release upload "$TAG" portable/*.zip portable/*.sha256 --repo "$GITHUB_REPOSITORY" --clobber
+          gh release upload "$TAG" $files --repo "$GITHUB_REPOSITORY" --clobber
